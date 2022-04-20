@@ -1,0 +1,6 @@
+name: pytorch1.10
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+  - defaults
+prefix: C:\Users\oywt\.conda\envs\pytorch1.10

@@ -1,0 +1,31 @@
+{
+    "os": "Windows-10-10.0.19044-SP0",
+    "python": "3.9.7",
+    "heartbeatAt": "2022-04-13T11:53:45.144027",
+    "startedAt": "2022-04-13T11:53:21.937759",
+    "docker": null,
+    "gpu": "GeForce RTX 2060",
+    "gpu_count": 1,
+    "cpu_count": 12,
+    "cuda": null,
+    "args": [
+        "-f",
+        "exps/example/yolox_voc/yolox_voc_s.py",
+        "-d",
+        "0",
+        "-b",
+        "2"
+    ],
+    "state": "running",
+    "program": "C:\\Users\\oywt\\Project\\YOLOX\\tools\\train.py",
+    "codePath": "tools\\train.py",
+    "git": {
+        "remote": "https://github.com/Megvii-BaseDetection/YOLOX.git",
+        "commit": "5bbfc110d73e80df4406e96b3c1103bb3555770f"
+    },
+    "email": "wtoy_Amoni@outlook.com",
+    "root": "C:/Users/oywt/Project/YOLOX",
+    "host": "DESKTOP-3SJ7BDN",
+    "username": "\u6b27\u9633\u6587\u6d9b",
+    "executable": "C:\\ProgramData\\Anaconda3\\python.exe"
+}
