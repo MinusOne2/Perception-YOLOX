@@ -15,6 +15,10 @@ from loguru import logger
 import cv2
 import numpy as np
 
+import time
+
+# import mxnet as mx
+
 from yolox.evaluators.voc_eval import voc_eval
 
 from .datasets_wrapper import Dataset
@@ -117,7 +121,7 @@ class VOCDetection(Dataset):
         self.target_transform = target_transform
         self.name = dataset_name
         self._annopath = os.path.join("%s", "Annotations", "%s.xml")
-        self._imgpath = os.path.join("%s", "JPEGImages", "%s.png")
+        self._imgpath = os.path.join("%s", "ResizedJPEGImages", "%s.png")
         # self._imgpath = os.path.join("%s", "JPEGImages", "%s.jpg")
         self._classes = VOC_CLASSES
         self.ids = list()
@@ -213,12 +217,13 @@ class VOCDetection(Dataset):
             (int(img.shape[1] * r), int(img.shape[0] * r)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
-
+    
         return resized_img
 
     def load_image(self, index):
         img_id = self.ids[index]
         img = cv2.imread(self._imgpath % img_id, cv2.IMREAD_COLOR)
+        # img = mx.image.imdecode(open(self._imgpath % img_id,'rb').read())
         assert img is not None
 
         return img

@@ -13,6 +13,8 @@ class Exp(MyExp):
         super(Exp, self).__init__()
         # self.num_classes = 1
         self.num_classes = 3
+        # self.depth = 1.0
+        # self.width = 1.0
         self.depth = 0.33
         self.width = 0.50
         self.warmup_epochs = 1
@@ -24,6 +26,7 @@ class Exp(MyExp):
         self.flip_prob = 0.5
 
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
+        self.data_num_workers = 0
 
     def get_data_loader(self, batch_size, is_distributed, no_aug=False, cache_img=False):
         from yolox.data import (
@@ -43,8 +46,8 @@ class Exp(MyExp):
 
         with wait_for_the_master(local_rank):
             dataset = VOCDetection(
-                # data_dir=os.path.join("C:/Users/oywt/Project/YOLOX/datasets/Official-SSDD-OPEN/Official-SSDD-OPEN/BBox_SSDD/voc_style/"),
-                data_dir=os.path.join("C:/Users/oywt/Project/YOLOX/datasets/auto_pilot/VOC2007"),
+                # data_dir=os.path.join("C:/Users/oywt/Project/Pception-YOLOX/datasets/Official-SSDD-OPEN/Official-SSDD-OPEN/BBox_SSDD/voc_style/"),
+                data_dir=os.path.join("C:/Users/oywt/Project/Pception-YOLOX/datasets/auto_pilot/VOC2007"),
                 image_sets=[('train')],
                 img_size=self.input_size,
                 preproc=TrainTransform(
@@ -88,7 +91,7 @@ class Exp(MyExp):
             mosaic=not no_aug,
         )
 
-        # dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True}
+        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True}
         dataloader_kwargs = {"pin_memory": True}
         dataloader_kwargs["batch_sampler"] = batch_sampler
 
@@ -103,8 +106,8 @@ class Exp(MyExp):
         from yolox.data import VOCDetection, ValTransform
 
         valdataset = VOCDetection(
-            # data_dir=os.path.join("C:/Users/oywt/Project/YOLOX/datasets/Official-SSDD-OPEN/Official-SSDD-OPEN/BBox_SSDD/voc_style/"),
-            data_dir=os.path.join("C:/Users/oywt/Project/YOLOX/datasets/auto_pilot/VOC2007"),
+            # data_dir=os.path.join("C:/Users/oywt/Project/Pception-YOLOX/datasets/Official-SSDD-OPEN/Official-SSDD-OPEN/BBox_SSDD/voc_style/"),
+            data_dir=os.path.join("C:/Users/oywt/Project/Pception-YOLOX/datasets/auto_pilot/VOC2007"),
             image_sets=[('test')],
             img_size=self.test_size,
             preproc=ValTransform(legacy=legacy),
@@ -119,7 +122,7 @@ class Exp(MyExp):
             sampler = torch.utils.data.SequentialSampler(valdataset)
 
         dataloader_kwargs = {
-            # "num_workers": self.data_num_workers,
+            "num_workers": self.data_num_workers,
             "pin_memory": True,
             "sampler": sampler,
         }

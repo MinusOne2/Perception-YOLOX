@@ -6,6 +6,9 @@ import random
 
 import cv2
 import numpy as np
+import torch
+import math
+import time 
 
 from yolox.utils import adjust_box_anns, get_local_rank
 
@@ -32,6 +35,87 @@ def get_mosaic_coordinate(mosaic_image, mosaic_index, xc, yc, w, h, input_h, inp
         x1, y1, x2, y2 = xc, yc, min(xc + w, input_w * 2), min(input_h * 2, yc + h)  # noqa
         small_coord = 0, 0, min(w, x2 - x1), min(y2 - y1, h)
     return (x1, y1, x2, y2), small_coord
+
+
+class Cutout(object):
+    """Randomly mask out one or more patches from an image.
+    Args:
+        n_holes (int): Number of patches to cut out of each image.
+        length (int): The length (in pixels) of each square patch.
+    """
+    def __init__(self, n_holes, length):
+        self.n_holes = n_holes
+        self.length = length
+
+    def __call__(self, img):
+        """
+        Args:
+            img (Tensor): Tensor image of size (C, H, W).
+        Returns:
+            Tensor: Image with n_holes of dimension length x length cut out of it.
+        """
+        h = img.size(1)
+        w = img.size(2)
+
+        mask = np.ones((h, w), np.float32)
+
+        for n in range(self.n_holes):
+            y = np.random.randint(h)
+            x = np.random.randint(w)
+
+            y1 = np.clip(y - self.length // 2, 0, h)
+            y2 = np.clip(y + self.length // 2, 0, h)
+            x1 = np.clip(x - self.length // 2, 0, w)
+            x2 = np.clip(x + self.length // 2, 0, w)
+
+            mask[y1: y2, x1: x2] = 0.
+
+        mask = torch.from_numpy(mask)
+        mask = mask.expand_as(img)
+        img = img * mask
+
+        return img
+
+class RandomErasing(object):
+    def __init__(self, EPSILON = 0.5, sl = 0.02, sh = 0.4, r1 = 0.3, mean=[0.4914, 0.4822, 0.4465]):
+        self.EPSILON = EPSILON
+        self.mean = mean
+        self.sl = sl
+        self.sh = sh
+        self.r1 = r1
+       
+    def __call__(self, img):
+
+        if random.uniform(0, 1) > self.EPSILON:
+            return img
+
+        for attempt in range(100):
+            area = img.shape[1] * img.shape[2]
+       
+            target_area = random.uniform(self.sl, self.sh) * area
+            aspect_ratio = random.uniform(self.r1, 1/self.r1)
+
+            h = int(round(math.sqrt(target_area * aspect_ratio)))
+            w = int(round(math.sqrt(target_area / aspect_ratio)))
+
+            if w < img.shape[2] and h < img.shape[1]:
+                x1 = random.randint(0, img.shape[1] - h)
+                y1 = random.randint(0, img.shape[2] - w)
+                if img.shape[0] == 3:
+                    #img[0, x1:x1+h, y1:y1+w] = random.uniform(0, 1)
+                    #img[1, x1:x1+h, y1:y1+w] = random.uniform(0, 1)
+                    #img[2, x1:x1+h, y1:y1+w] = random.uniform(0, 1)
+                    img[0, x1:x1+h, y1:y1+w] = self.mean[0]
+                    img[1, x1:x1+h, y1:y1+w] = self.mean[1]
+                    img[2, x1:x1+h, y1:y1+w] = self.mean[2]
+                    #img[:, x1:x1+h, y1:y1+w] = torch.from_numpy(np.random.rand(3, h, w))
+                else:
+                    img[0, x1:x1+h, y1:y1+w] = self.mean[1]
+                    # img[0, x1:x1+h, y1:y1+w] = torch.from_numpy(np.random.rand(1, h, w))
+                return img
+
+        return img
+
 
 
 class MosaicDetection(Dataset):
@@ -89,8 +173,27 @@ class MosaicDetection(Dataset):
             # 3 additional image indices
             indices = [idx] + [random.randint(0, len(self._dataset) - 1) for _ in range(3)]
 
+          
+         
             for i_mosaic, index in enumerate(indices):
+             
                 img, _labels, _, img_id = self._dataset.pull_item(index)
+            
+                # import matplotlib.pyplot as plt
+                # plt.imshow(img)
+                # plt.axis("off")
+                # plt.show()
+                # 增加RandomErasing 数据增强
+
+                randomerasing = RandomErasing()
+                img = randomerasing(np.transpose(img, (2, 0, 1)))
+
+                img = np.transpose(img, (1, 2, 0))
+              
+                # plt.imshow(img)
+                # plt.axis("off")
+                # plt.show()
+
                 h0, w0 = img.shape[:2]  # orig hw
                 scale = min(1. * input_h / h0, 1. * input_w / w0)
                 img = cv2.resize(
@@ -117,14 +220,14 @@ class MosaicDetection(Dataset):
                     labels[:, 2] = scale * _labels[:, 2] + padw
                     labels[:, 3] = scale * _labels[:, 3] + padh
                 mosaic_labels.append(labels)
-
+              
             if len(mosaic_labels):
                 mosaic_labels = np.concatenate(mosaic_labels, 0)
                 np.clip(mosaic_labels[:, 0], 0, 2 * input_w, out=mosaic_labels[:, 0])
                 np.clip(mosaic_labels[:, 1], 0, 2 * input_h, out=mosaic_labels[:, 1])
                 np.clip(mosaic_labels[:, 2], 0, 2 * input_w, out=mosaic_labels[:, 2])
                 np.clip(mosaic_labels[:, 3], 0, 2 * input_h, out=mosaic_labels[:, 3])
-
+ 
             mosaic_img, mosaic_labels = random_affine(
                 mosaic_img,
                 mosaic_labels,
@@ -134,10 +237,11 @@ class MosaicDetection(Dataset):
                 scales=self.scale,
                 shear=self.shear,
             )
-
+          
             # -----------------------------------------------------------------
             # CopyPaste: https://arxiv.org/abs/2012.07177
             # -----------------------------------------------------------------
+
             if (
                 self.enable_mixup
                 and not len(mosaic_labels) == 0
@@ -146,6 +250,8 @@ class MosaicDetection(Dataset):
                 mosaic_img, mosaic_labels = self.mixup(mosaic_img, mosaic_labels, self.input_dim)
             mix_img, padded_labels = self.preproc(mosaic_img, mosaic_labels, self.input_dim)
             img_info = (mix_img.shape[1], mix_img.shape[0])
+            
+            
 
             # -----------------------------------------------------------------
             # img_info and img_id are not used for training.
