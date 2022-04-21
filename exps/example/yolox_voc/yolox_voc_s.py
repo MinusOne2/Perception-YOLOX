@@ -13,10 +13,10 @@ class Exp(MyExp):
         super(Exp, self).__init__()
         # self.num_classes = 1
         self.num_classes = 3
-        # self.depth = 1.0
-        # self.width = 1.0
-        self.depth = 0.33
-        self.width = 0.50
+        self.depth = 0.67
+        self.width = 0.75
+        # self.depth = 0.33
+        # self.width = 0.50
         self.warmup_epochs = 1
 
         # ---------- transform config ------------ #

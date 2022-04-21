@@ -54,8 +54,8 @@ class Cutout(object):
         Returns:
             Tensor: Image with n_holes of dimension length x length cut out of it.
         """
-        h = img.size(1)
-        w = img.size(2)
+        h = img.shape[1]
+        w = img.shape[2]
 
         mask = np.ones((h, w), np.float32)
 
@@ -183,12 +183,18 @@ class MosaicDetection(Dataset):
                 # plt.imshow(img)
                 # plt.axis("off")
                 # plt.show()
-                # 增加RandomErasing 数据增强
+                # # 增加RandomErasing 数据增强
+                # randomerasing = RandomErasing()
+                # img = randomerasing(np.transpose(img, (2, 0, 1)))
 
-                randomerasing = RandomErasing()
-                img = randomerasing(np.transpose(img, (2, 0, 1)))
+                # img = np.transpose(img, (1, 2, 0))
 
-                img = np.transpose(img, (1, 2, 0))
+                # # # 增加cutout 数据增强
+                # img = torch.from_numpy(img)
+                # cutout = Cutout(8, 16*16)
+                # img = cutout(img)
+                # img = img.numpy()
+
               
                 # plt.imshow(img)
                 # plt.axis("off")
