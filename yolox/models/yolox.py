@@ -26,6 +26,7 @@ class YOLOX(nn.Module):
         self.head = head
 
     def forward(self, x, targets=None):
+        # yolox-s
         # fpn output content features of [dark3, dark4, dark5]， [B C W H]
         # fpn_outs[0]: [5, 128, 80, 80]
         # fpn_outs[1]: [5, 256, 40, 40]

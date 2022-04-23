@@ -17,12 +17,13 @@ from yolox.utils import configure_nccl, configure_omp, get_num_devices
 
 
 import os
+
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX train parser")
-    parser.add_argument("-expn", "--experiment-name", type=str, default='0419_snow_baseline_200')
+    parser.add_argument("-expn", "--experiment-name", type=str, default='0423_middle_dw_head_200(30)')
     parser.add_argument("-n", "--name", type=str, default='yolo_m', help="model name")
 
     # distributed
@@ -35,7 +36,7 @@ def make_parser():
         type=str,
         help="url used to set up distributed training",
     )
-    parser.add_argument("-b", "--batch-size", type=int, default=5, help="batch size")
+    parser.add_argument("-b", "--batch-size", type=int, default=1, help="batch size")
     parser.add_argument(
         "-d", "--devices", default='0', type=int, help="device for training"
     )
@@ -47,9 +48,9 @@ def make_parser():
         help="plz input your experiment description file",
     )
     parser.add_argument(
-        "--resume", default=True, action="store_true", help="resume training"
+        "--resume", default=False, action="store_true", help="resume training"
     )
-    # parser.add_argument("-c", "--ckpt", default='C:/Users/oywt/Project/YOLOX/YOLOX_outputs/0329_multi_pos_3_3/best_ckpt.pth', type=str, help="checkpoint file")
+    # parser.add_argument("-c", "--ckpt", default='C:/Users/oywt/Project/Pception-YOLOX/YOLOX_outputs/0419_snow_newbaseline_200/epoch_159_ckpt.pth', type=str, help="checkpoint file")
     parser.add_argument("-c", "--ckpt", default=None, type=str, help="checkpoint file")
     parser.add_argument(
         "-e",

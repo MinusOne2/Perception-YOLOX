@@ -15,8 +15,8 @@ class Exp(MyExp):
         self.num_classes = 3
         self.depth = 0.67
         self.width = 0.75
-        # self.depth = 0.33
-        # self.width = 0.50
+        # self.depth = 1.32
+        # self.width = 1.25
         self.warmup_epochs = 1
 
         # ---------- transform config ------------ #

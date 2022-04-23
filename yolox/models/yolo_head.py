@@ -44,6 +44,7 @@ class YOLOXHead(nn.Module):
         self.reg_preds = nn.ModuleList()
         self.obj_preds = nn.ModuleList()
         self.stems = nn.ModuleList()
+        self.upsample = nn.ModuleList()
         Conv = DWConv if depthwise else BaseConv
 
         # add swin transformer
@@ -59,6 +60,15 @@ class YOLOXHead(nn.Module):
         # out_indices = (0,)
 
         for i in range(len(in_channels)):
+            self.upsample.append(
+                nn.ConvTranspose2d(
+                    in_channels = int(in_channels[i] * width),
+                    out_channels = int(in_channels[i] * width),
+                    kernel_size = 3, 
+                    stride = 2,
+                    padding = 0)
+                )
+
             self.stems.append(
                 BaseConv(
                     in_channels=int(in_channels[i] * width),
@@ -158,9 +168,6 @@ class YOLOXHead(nn.Module):
         self.strides = strides
         self.grids = [torch.zeros(1)] * len(in_channels)
 
-      
-        
-      
 
     def initialize_biases(self, prior_prob):
         for conv in self.cls_preds:
@@ -187,6 +194,9 @@ class YOLOXHead(nn.Module):
         for k, (cls_conv, reg_conv, stride_this_level, x) in enumerate(
             zip(self.cls_convs, self.reg_convs, self.strides, xin)
         ):
+            # 增大一倍feature map的尺寸
+            # [1, 320, 48, 80] ==>> [1, 320, 97, 161]
+            x = self.upsample[k](x)
             
             # add Transformer reasoning layer
             # batch, input_dim, w, h = x.shape

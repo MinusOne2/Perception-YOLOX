@@ -102,16 +102,16 @@ def voc_eval(
     else:
         # load
         with open(cachefile, "rb") as f:
-            recs = pickle.load(f)
+            recs = pickle.load(f) # 627 test labels
 
     # extract gt objects for this class
     class_recs = {}
     npos = 0
-    for imagename in imagenames:
+    for imagename in imagenames: # 遍历每一张test img
         R = [obj for obj in recs[imagename] if obj["name"] == classname]
         bbox = np.array([x["bbox"] for x in R])
         difficult = np.array([x["difficult"] for x in R]).astype(np.bool)
-        det = [False] * len(R)
+        det = [False] * len(R) # 标记当前帧中的objs有没有被检测到
         npos = npos + sum(~difficult)
         class_recs[imagename] = {"bbox": bbox, "difficult": difficult, "det": det}
 
@@ -130,18 +130,18 @@ def voc_eval(
 
     # sort by confidence
     sorted_ind = np.argsort(-confidence)
-    BB = BB[sorted_ind, :]
-    image_ids = [image_ids[x] for x in sorted_ind]
+    BB = BB[sorted_ind, :] # 根据sorted_ind对BB（bounding box）进行排序
+    image_ids = [image_ids[x] for x in sorted_ind] # 根据sorted_ind对image_ids进行排序
 
     # go down dets and mark TPs and FPs
-    nd = len(image_ids)
+    nd = len(image_ids) # 网络预测输出的当前类别的objs数量
     tp = np.zeros(nd)
     fp = np.zeros(nd)
     for d in range(nd):
         R = class_recs[image_ids[d]]
-        bb = BB[d, :].astype(float)
+        bb = BB[d, :].astype(float) # bounding box
         ovmax = -np.inf
-        BBGT = R["bbox"].astype(float)
+        BBGT = R["bbox"].astype(float) # 当前img的所有gt
 
         if BBGT.size > 0:
             # compute overlaps
@@ -163,11 +163,11 @@ def voc_eval(
 
             overlaps = inters / uni
             ovmax = np.max(overlaps)
-            jmax = np.argmax(overlaps)
+            jmax = np.argmax(overlaps) # max overlaps index
 
         if ovmax > ovthresh:
             if not R["difficult"][jmax]:
-                if not R["det"][jmax]:
+                if not R["det"][jmax]: # 当前obj有没有别其他的box进行匹配
                     tp[d] = 1.0
                     R["det"][jmax] = 1
                 else:
@@ -175,13 +175,34 @@ def voc_eval(
         else:
             fp[d] = 1.0
 
-        # compute precision recall
-    fp = np.cumsum(fp)
+    # compute precision recall
+    # 因为AP的计算是根据PR曲线得到的，而PR曲线是一个以Recall为横坐标，Precision为纵坐标的连续曲线分布
+    # Recall和Precision是根据fp tp fn计算得到的
+    # 而fp tp fn与参与判断的pd框数量相关
+    # 因此在计算precision recall的时候，采用了矩阵的方式进行计算
+
+    fp = np.cumsum(fp) # np.cumsum用于将数组按列累加
     tp = np.cumsum(tp)
     rec = tp / float(npos)
     # avoid divide by zero in case the first detection matches a difficult
     # ground truth
     prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
     ap = voc_ap(rec, prec, use_07_metric)
+
+    if ovthresh == 0.5:
+        print("%s\t result: FP %d\t  TP %d\t FN %d\t" % (classname, fp[-1], tp[-1], npos-tp[-1]))
+
+        # import matplotlib.pyplot as plt
+       
+        # plt.figure()
+        # plt.xlim((0, 1)) #x轴截取-1.5 到 1.5
+        # plt.ylim((0, 1))#y轴截取0 到 1.5
+        # plt.xlabel('recall', 
+        # fontsize=12) #设置标签
+        # plt.ylabel('precision', fontsize=12)
+        # plt.title("%s AP@0.5 PR Result" %classname, fontsize=12)
+        # # plt.grid()  # 生成网格
+        # plt.plot(rec, prec, linewidth=3, color='blue')
+        # plt.show()
 
     return rec, prec, ap

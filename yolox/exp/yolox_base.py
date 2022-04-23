@@ -27,6 +27,7 @@ class Exp(BaseExp):
         # activation name. For example, if using "relu", then "silu" will be replaced to "relu".
         self.act = "silu"
 
+
         # ---------------- dataloader config ---------------- #
         # set worker to 4 for shorter dataloader init time
         # If your training process cost many memory, reduce this value.
@@ -81,7 +82,7 @@ class Exp(BaseExp):
         # name of LRScheduler
         self.scheduler = "yoloxwarmcos"
         # last #epoch to close augmention like mosaic
-        self.no_aug_epochs = 15
+        self.no_aug_epochs = 30
         # self.no_aug_epochs = 200
         # apply EMA during training
         self.ema = True

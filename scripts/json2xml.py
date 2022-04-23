@@ -32,7 +32,7 @@ files = [i.split("/")[-1].split("\\")[-1].split(".json")[0] for i in files]  #èŽ
 num1 = 0
 num2 = 0
 for json_file_ in files:
-    json_filename = labelme_path + json_file_ + ".json"
+    json_filename = labelme_path + json_file_ + ".json" 
     json_file = json.load(open(json_filename,"r",encoding="utf-8"))
     height, width, channels = cv2.imread(img_path + json_file_ +".png").shape
     with codecs.open(saved_path + "Annotations/"+json_file_ + ".xml","w","utf-8") as xml:

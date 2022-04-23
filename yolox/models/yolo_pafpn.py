@@ -113,4 +113,8 @@ class YOLOPAFPN(nn.Module):
         pan_out0 = self.C3_n4(p_out0)  # 1024->1024/32
 
         outputs = (pan_out2, pan_out1, pan_out0)
+        # yolox-s
+        # fpn_outs[0]: [5, 128, 80, 80]
+        # fpn_outs[1]: [5, 256, 40, 40]
+        # fpn_outs[2]: [5, 512, 20, 20]
         return outputs

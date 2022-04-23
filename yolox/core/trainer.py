@@ -339,14 +339,14 @@ class Trainer:
 
         if self.rank == 0:
             if self.args.logger == "tensorboard":
-                self.tblogger.add_scalar("val/SSDDAP50", ap50, self.epoch + 1)
-                self.tblogger.add_scalar("val/SSDDAP70", ap70, self.epoch + 1)
-                self.tblogger.add_scalar("val/SSDDAP50_95", ap50_95, self.epoch + 1)
+                self.tblogger.add_scalar("val/AP50", ap50, self.epoch + 1)
+                self.tblogger.add_scalar("val/AP70", ap70, self.epoch + 1)
+                self.tblogger.add_scalar("val/AP50_95", ap50_95, self.epoch + 1)
             if self.args.logger == "wandb":
                 self.wandb_logger.log_metrics({
-                    "val/SSDDAP50": ap50,
-                     "val/SSDDAP70": ap70,
-                    "val/SSDDAP50_95": ap50_95,
+                    "val/AP50": ap50,
+                     "val/AP70": ap70,
+                    "val/AP50_95": ap50_95,
                     "epoch": self.epoch + 1,
                 })
             logger.info("\n" + summary)
