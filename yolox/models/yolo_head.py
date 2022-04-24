@@ -60,14 +60,14 @@ class YOLOXHead(nn.Module):
         # out_indices = (0,)
 
         for i in range(len(in_channels)):
-            self.upsample.append(
-                nn.ConvTranspose2d(
-                    in_channels = int(in_channels[i] * width),
-                    out_channels = int(in_channels[i] * width),
-                    kernel_size = 3, 
-                    stride = 2,
-                    padding = 0)
-                )
+            # self.upsample.append(
+            #     nn.ConvTranspose2d(
+            #         in_channels = int(in_channels[i] * width),
+            #         out_channels = int(in_channels[i] * width),
+            #         kernel_size = 3, 
+            #         stride = 2,
+            #         padding = 0)
+            #     )
 
             self.stems.append(
                 BaseConv(
@@ -196,7 +196,7 @@ class YOLOXHead(nn.Module):
         ):
             # 增大一倍feature map的尺寸
             # [1, 320, 48, 80] ==>> [1, 320, 97, 161]
-            x = self.upsample[k](x)
+            # x = self.upsample[k](x)
             
             # add Transformer reasoning layer
             # batch, input_dim, w, h = x.shape

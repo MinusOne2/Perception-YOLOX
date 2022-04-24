@@ -19,8 +19,8 @@ from yolox.utils import configure_nccl, fuse_model, get_local_rank, setup_logger
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX Eval")
-    parser.add_argument("-expn", "--experiment-name", type=str, default='0413_reasoning_layer_3_10_200')
-    parser.add_argument("-n", "--name", type=str, default=None, help="model name")
+    parser.add_argument("-expn", "--experiment-name", type=str, default='\0419_snow_newbaseline_200')
+    parser.add_argument("-n", "--name", type=str, default='yolo_m', help="model name")
 
     # distributed
     parser.add_argument(
@@ -32,7 +32,7 @@ def make_parser():
         type=str,
         help="url used to set up distributed training",
     )
-    parser.add_argument("-b", "--batch-size", type=int, default=8, help="batch size")
+    parser.add_argument("-b", "--batch-size", type=int, default=10, help="batch size")
     parser.add_argument(
         "-d", "--devices", default='0', type=int, help="device for training"
     )
@@ -49,7 +49,7 @@ def make_parser():
         type=str,
         help="pls input your expriment description file",
     )
-    parser.add_argument("-c", "--ckpt", default='./YOLOX_outputs/0413_reasoning_layer_3_10_200/best_ckpt.pth', type=str, help="ckpt for eval")
+    parser.add_argument("-c", "--ckpt", default='./YOLOX_outputs/0419_snow_baseline_200/best_ckpt.pth', type=str, help="ckpt for eval")
     parser.add_argument("--conf", default=None, type=float, help="test conf")
     parser.add_argument("--nms", default=None, type=float, help="test nms threshold")
     parser.add_argument("--tsize", default=None, type=int, help="test img size")
