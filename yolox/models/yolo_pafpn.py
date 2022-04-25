@@ -80,6 +80,13 @@ class YOLOPAFPN(nn.Module):
             act=act,
         )
 
+        self.downsample = nn.Sequential(
+                nn.Conv2d(in_channels = 3, out_channels = 16, kernel_size = 2, stride = 2, padding = 0),
+                nn.BatchNorm2d(16),
+                nn.GELU(),
+                )
+
+
     def forward(self, input):
         """
         Args:
@@ -90,6 +97,12 @@ class YOLOPAFPN(nn.Module):
         """
 
         #  backbone
+
+        # input img：[1, 3, 1088, 1920]
+        # downSampling：[1, 16, 256, 480] [1, 16, 512, 1024]
+
+       
+        input = self.downsample(input)
         out_features = self.backbone(input)
         features = [out_features[f] for f in self.in_features]
         [x2, x1, x0] = features

@@ -194,15 +194,15 @@ def voc_eval(
 
         import matplotlib.pyplot as plt
        
-        plt.figure()
-        plt.xlim((0, 1)) #x轴截取-1.5 到 1.5
-        plt.ylim((0, 1))#y轴截取0 到 1.5
-        plt.xlabel('recall', 
-        fontsize=12) #设置标签
-        plt.ylabel('precision', fontsize=12)
-        plt.title("%s AP@0.5 PR Result" %classname, fontsize=12)
-        # plt.grid()  # 生成网格
-        plt.plot(rec, prec, linewidth=3, color='blue')
-        plt.show()
+        # plt.figure()
+        # plt.xlim((0, 1)) #x轴截取-1.5 到 1.5
+        # plt.ylim((0, 1))#y轴截取0 到 1.5
+        # plt.xlabel('recall', 
+        # fontsize=12) #设置标签
+        # plt.ylabel('precision', fontsize=12)
+        # plt.title("%s AP@0.5 PR Result" %classname, fontsize=12)
+        # # plt.grid()  # 生成网格
+        # plt.plot(rec, prec, linewidth=3, color='blue')
+        # plt.show()
 
     return rec, prec, ap

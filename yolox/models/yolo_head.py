@@ -22,7 +22,7 @@ class YOLOXHead(nn.Module):
         self,
         num_classes,
         width=1.0,
-        strides=[8, 16, 32],
+        strides=[8*4, 16*4, 32*4],
         in_channels=[256, 512, 1024],
         act="silu",
         depthwise=False,
@@ -60,14 +60,14 @@ class YOLOXHead(nn.Module):
         # out_indices = (0,)
 
         for i in range(len(in_channels)):
-            # self.upsample.append(
-            #     nn.ConvTranspose2d(
-            #         in_channels = int(in_channels[i] * width),
-            #         out_channels = int(in_channels[i] * width),
-            #         kernel_size = 3, 
-            #         stride = 2,
-            #         padding = 0)
-            #     )
+            self.upsample.append(
+                nn.ConvTranspose2d(
+                    in_channels = int(in_channels[i] * width),
+                    out_channels = int(in_channels[i] * width),
+                    kernel_size = 2, 
+                    stride = 2,
+                    padding = 0)
+                )
 
             self.stems.append(
                 BaseConv(
@@ -165,7 +165,7 @@ class YOLOXHead(nn.Module):
         self.l1_loss = nn.L1Loss(reduction="none")
         self.bcewithlog_loss = nn.BCEWithLogitsLoss(reduction="none")
         self.iou_loss = IOUloss(reduction="none")
-        self.strides = strides
+        self.strides = strides 
         self.grids = [torch.zeros(1)] * len(in_channels)
 
 
@@ -246,8 +246,8 @@ class YOLOXHead(nn.Module):
             # obj_output = self.obj_preds[k](x)
 
             if self.training:
-                output = torch.cat([reg_output, obj_output, cls_output], 1)
-                output, grid = self.get_output_and_grid(
+                output = torch.cat([reg_output, obj_output, cls_output], 1) # [1, 8, 36, 60]
+                output, grid = self.get_output_and_grid( # [1, 2160, 8] [1, 2160, 2]
                     output, k, stride_this_level, xin[0].type()
                 )
                 x_shifts.append(grid[:, :, 0])

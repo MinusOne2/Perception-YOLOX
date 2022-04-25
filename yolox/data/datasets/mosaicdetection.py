@@ -77,7 +77,7 @@ class Cutout(object):
         return img
 
 class RandomErasing(object):
-    def __init__(self, EPSILON = 0.5, sl = 0.02, sh = 0.4, r1 = 0.3, mean=[0.4914, 0.4822, 0.4465]):
+    def __init__(self, EPSILON = 0.5, sl = 0.02, sh = 0.04, r1 = 0.3, mean=[0.4914, 0.4822, 0.4465]):
         self.EPSILON = EPSILON
         self.mean = mean
         self.sl = sl
@@ -190,10 +190,10 @@ class MosaicDetection(Dataset):
                 # img = np.transpose(img, (1, 2, 0))
 
                 # # 增加cutout 数据增强
-                img = torch.from_numpy(img)
-                cutout = Cutout(8, 16)
-                img = cutout(img)
-                img = img.numpy().astype(int)
+                # img = torch.from_numpy(img)
+                # cutout = Cutout(8, 16)
+                # img = cutout(img)
+                # img = img.numpy().astype(int)
 
               
                 # plt.imshow(img)
@@ -256,10 +256,9 @@ class MosaicDetection(Dataset):
                 mosaic_img, mosaic_labels = self.mixup(mosaic_img, mosaic_labels, self.input_dim)
             mix_img, padded_labels = self.preproc(mosaic_img, mosaic_labels, self.input_dim)
             img_info = (mix_img.shape[1], mix_img.shape[0])
-            
-            
 
-            # -----------------------------------------------------------------
+          
+              # -----------------------------------------------------------------
             # img_info and img_id are not used for training.
             # They are also hard to be specified on a mosaic image.
             # -----------------------------------------------------------------

@@ -23,7 +23,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX train parser")
-    parser.add_argument("-expn", "--experiment-name", type=str, default='default')
+    parser.add_argument("-expn", "--experiment-name", type=str, default='0425_X_200')
     parser.add_argument("-n", "--name", type=str, default='yolo_m', help="model name")
 
     # distributed

@@ -19,8 +19,8 @@ from yolox.utils import configure_nccl, fuse_model, get_local_rank, setup_logger
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX Eval")
-    parser.add_argument("-expn", "--experiment-name", type=str, default='\0419_snow_newbaseline_200')
-    parser.add_argument("-n", "--name", type=str, default='yolo_m', help="model name")
+    parser.add_argument("-expn", "--experiment-name", type=str, default='0425_large_200')
+    parser.add_argument("-n", "--name", type=str, default='yolo_l', help="model name")
 
     # distributed
     parser.add_argument(

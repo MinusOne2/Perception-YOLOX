@@ -33,8 +33,8 @@ class Exp(BaseExp):
         # If your training process cost many memory, reduce this value.
         # self.data_num_workers = 4
         # self.input_size = (640, 640)  # (height, width)
-        # self.input_size = (1088, 1920)  # (height, width)
-        self.input_size = (384, 640)  # (height, width)
+        self.input_size = (1024, 2048)  # (height, width)
+        # self.input_size = (384, 640)  # (height, width)
         # Actual multiscale ranges: [640 - 5 * 32, 640 + 5 * 32].
         # To disable multiscale training, set the value to 0.
         self.multiscale_range = 5
@@ -99,15 +99,15 @@ class Exp(BaseExp):
         self.eval_interval = 1
         # save history checkpoint or not.
         # If set to False, yolox will only save latest and best ckpt.
-        self.save_history_ckpt = True
+        self.save_history_ckpt = False
         # name of experiment
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
 
         # -----------------  testing config ------------------ #
         # output image size during evaluation/test
         # self.test_size = (640, 640)
-        # self.test_size = (1088, 1920)
-        self.test_size = (384, 640)
+        self.test_size = (1024, 2048)
+        # self.test_size = (384, 640)
         # confidence threshold during evaluation/test,
         # boxes whose scores are less than test_conf will be filtered
         self.test_conf = 0.01
@@ -231,8 +231,10 @@ class Exp(BaseExp):
         return input_size
 
     def preprocess(self, inputs, targets, tsize):
-        scale_y = tsize[0] / self.input_size[0]
-        scale_x = tsize[1] / self.input_size[1]
+        # scale_y = tsize[0] / self.input_size[0]
+        # scale_x = tsize[1] / self.input_size[1]
+        scale_y = 1
+        scale_x = 1
         if scale_x != 1 or scale_y != 1:
             inputs = nn.functional.interpolate(
                 inputs, size=tsize, mode="bilinear", align_corners=False
