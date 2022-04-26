@@ -192,7 +192,7 @@ def voc_eval(
     if ovthresh == 0.5:
         print("%s\t result: FP %d\t  TP %d\t FN %d\t" % (classname, fp[-1], tp[-1], npos-tp[-1]))
 
-        import matplotlib.pyplot as plt
+        # import matplotlib.pyplot as plt
        
         # plt.figure()
         # plt.xlim((0, 1)) #x轴截取-1.5 到 1.5

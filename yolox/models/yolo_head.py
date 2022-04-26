@@ -22,7 +22,7 @@ class YOLOXHead(nn.Module):
         self,
         num_classes,
         width=1.0,
-        strides=[8*4, 16*4, 32*4],
+        strides=[8*2, 16*2, 32*2],
         in_channels=[256, 512, 1024],
         act="silu",
         depthwise=False,
@@ -33,7 +33,7 @@ class YOLOXHead(nn.Module):
             depthwise (bool): whether apply depthwise conv in conv branch. Defalut value: False.
         """
         super().__init__()
-
+  
         self.n_anchors = 1
         self.num_classes = num_classes
         self.decode_in_inference = True  # for deploy, set to False
@@ -48,16 +48,16 @@ class YOLOXHead(nn.Module):
         Conv = DWConv if depthwise else BaseConv
 
         # add swin transformer
-        # self.mlp = nn.ModuleList()
-        # self.Reasoning_layer = nn.ModuleList()
-        # img_size=[80, 40, 20]
-        # patch_size=1
-        # in_chans=[128, 256, 512]
-        # embed_dim=[128, 256, 512] 
-        # depths=[1]
-        # num_heads=[[4], [8], [16]]
-        # window_size = [20, 20, 20]
-        # out_indices = (0,)
+        self.mlp = nn.ModuleList()
+        self.Reasoning_layer = nn.ModuleList()
+        img_size=[80, 40, 20]
+        patch_size=1
+        in_chans=[256, 512, 1024]
+        embed_dim=[256, 512, 1024] 
+        depths=[2]
+        num_heads=[[8], [16], [32]]
+        window_size = [8, 8, 8]
+        out_indices = (0,)
 
         for i in range(len(in_channels)):
             self.upsample.append(
@@ -147,19 +147,19 @@ class YOLOXHead(nn.Module):
             )
 
             # # add swin transformer
-            # self.mlp.append(
-            #     BaseConv(
-            #         in_channels=int(in_channels[i] * width * 2),
-            #         out_channels=int(in_channels[i] * width),
-            #         ksize=1,
-            #         stride=1,
-            #         act=act,
-            #     )
-            # )
-            # self.Reasoning_layer.append(
-            #     SwinTransformer(pretrain_img_size = img_size[i], patch_size = patch_size, in_chans = in_chans[i], 
-            #     embed_dim = embed_dim[i], depths = depths, num_heads = num_heads[i], window_size = window_size[i],
-            #     out_indices = out_indices))
+            self.mlp.append(
+                BaseConv(
+                    in_channels=int(in_channels[i] * width * 2),
+                    out_channels=int(in_channels[i] * width),
+                    ksize=1,
+                    stride=1,
+                    act=act,
+                )
+            )
+            self.Reasoning_layer.append(
+                SwinTransformer(pretrain_img_size = img_size[i], patch_size = patch_size, in_chans = in_chans[i], 
+                embed_dim = embed_dim[i], depths = depths, num_heads = num_heads[i], window_size = window_size[i],
+                out_indices = out_indices))
 
         self.use_l1 = False
         self.l1_loss = nn.L1Loss(reduction="none")
@@ -214,10 +214,10 @@ class YOLOXHead(nn.Module):
             # x = mlp(x)
 
 
-            # # add swin transforemr reasoning layer
-            # x_trans = self.Reasoning_layer[k](x)[0] # [1, 128, 80, 80]
-            # x = torch.cat((x_trans, x), dim = 1)
-            # x = self.mlp[k](x) # [1, 128, 80, 80]
+            # add swin transforemr reasoning layer
+            x_trans = self.Reasoning_layer[k](x)[0] # [1, 128, 80, 80]
+            x = torch.cat((x_trans, x), dim = 1)
+            x = self.mlp[k](x) # [1, 128, 80, 80]
             
             # decoupled head
             x = self.stems[k](x) # 1 * 1的降维卷积
